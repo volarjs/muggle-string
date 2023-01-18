@@ -28,17 +28,17 @@ export function create(source: string): Segment[] {
 	return [[source, undefined, 0]];
 }
 
-export function replace<T extends Segment<any>>(segments: T[], pattern: string | RegExp, ...replacers: (string | ((match: string) => T))[]) {
+export function replace<T extends Segment<any>>(segments: T[], pattern: string | RegExp, ...replacers: (T | ((match: string) => T))[]) {
 	const str = toString(segments);
 	const match = str.match(pattern);
 	if (match && match.index !== undefined) {
 		const startOffset = match.index;
 		const endOffset = startOffset + match[0].length;
-		replaceRange(segments, startOffset, endOffset, ...replacers.map(replacer => typeof replacer === 'string' ? replacer : replacer(match[0])));
+		replaceRange(segments, startOffset, endOffset, ...replacers.map(replacer => typeof replacer === 'function' ? replacer(match[0]) : replacer));
 	}
 }
 
-export function replaceAll<T extends Segment<any>>(segments: T[], pattern: RegExp, ...replacers: (string | ((match: string) => T))[]) {
+export function replaceAll<T extends Segment<any>>(segments: T[], pattern: RegExp, ...replacers: (T | ((match: string) => T))[]) {
 	const str = toString(segments);
 	const allMatch = str.matchAll(pattern);
 	let length = str.length;
@@ -47,7 +47,7 @@ export function replaceAll<T extends Segment<any>>(segments: T[], pattern: RegEx
 		if (match.index !== undefined) {
 			const startOffset = match.index + lengthDiff;
 			const endOffset = startOffset + match[0].length;
-			replaceRange(segments, startOffset, endOffset, ...replacers.map(replacer => typeof replacer === 'string' ? replacer : replacer(match[0])));
+			replaceRange(segments, startOffset, endOffset, ...replacers.map(replacer => typeof replacer === 'function' ? replacer(match[0]) : replacer));
 			const newLength = getLength(segments);
 			lengthDiff += newLength - length;
 			length = newLength;
