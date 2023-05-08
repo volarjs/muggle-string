@@ -1,14 +1,9 @@
 import { binarySearch } from "./binarySearch";
+import { offsetStack, resetOffsetStack } from "./track";
+import { Segment } from "./types";
 
-const NO_DATA_SYMBOL: unique symbol = Symbol();
-
-export type Segment<T = typeof NO_DATA_SYMBOL> = string | (
-	T extends typeof NO_DATA_SYMBOL ?
-	// text, source, source range / offset
-	[string, string | undefined, number | [number, number]] :
-	// text, source, source range / offset, data
-	[string, string | undefined, number | [number, number], T]
-);
+export * from './types';
+export * from './track';
 
 export function getLength(segments: Segment<any>[]) {
 	let length = 0;
@@ -22,17 +17,15 @@ export function toString<T extends Segment<any>>(segments: T[]) {
 	return segments.map(s => typeof s === 'string' ? s : s[0]).join('');
 }
 
-export function create(source: string): Segment[] {
-	return [[source, undefined, 0]];
-}
-
 export function replace<T extends Segment<any>>(segments: T[], pattern: string | RegExp, ...replacers: (T | ((match: string) => T))[]) {
 	const str = toString(segments);
 	const match = str.match(pattern);
 	if (match && match.index !== undefined) {
 		const startOffset = match.index;
 		const endOffset = startOffset + match[0].length;
+		offsetStack();
 		replaceRange(segments, startOffset, endOffset, ...replacers.map(replacer => typeof replacer === 'function' ? replacer(match[0]) : replacer));
+		resetOffsetStack();
 	}
 }
 
@@ -45,7 +38,9 @@ export function replaceAll<T extends Segment<any>>(segments: T[], pattern: RegEx
 		if (match.index !== undefined) {
 			const startOffset = match.index + lengthDiff;
 			const endOffset = startOffset + match[0].length;
+			offsetStack();
 			replaceRange(segments, startOffset, endOffset, ...replacers.map(replacer => typeof replacer === 'function' ? replacer(match[0]) : replacer));
+			resetOffsetStack();
 			const newLength = getLength(segments);
 			lengthDiff += newLength - length;
 			length = newLength;
@@ -73,7 +68,9 @@ export function replaceSourceRange<T extends Segment<any>>(segments: T[], source
 					inserts.push(trimSegmentStart(segment, endOffset - segmentEnd));
 				}
 				combineStrings(inserts);
+				offsetStack();
 				segments.splice(segments.indexOf(segment), 1, ...inserts);
+				resetOffsetStack();
 				return true;
 			}
 		}
@@ -101,14 +98,18 @@ export function replaceRange<T extends Segment<any>>(segments: T[], startOffset:
 		inserts.push(trimSegmentStart(endSegment, endOffset - endSegmentStart));
 	}
 	combineStrings(inserts);
+	offsetStack();
 	segments.splice(startIndex, endIndex - startIndex + 1, ...inserts);
+	resetOffsetStack();
 }
 
 function combineStrings<T extends Segment<any>>(segments: T[]) {
 	for (let i = segments.length - 1; i >= 1; i--) {
 		if (typeof segments[i] === 'string' && typeof segments[i - 1] === 'string') {
 			segments[i - 1] = (segments[i - 1] as string + segments[i] as string) as T;
+			offsetStack();
 			segments.splice(i, 1);
+			resetOffsetStack();
 		}
 	}
 }
