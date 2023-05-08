@@ -17,6 +17,10 @@ export function toString<T extends Segment<any>>(segments: T[]) {
 	return segments.map(s => typeof s === 'string' ? s : s[0]).join('');
 }
 
+export function create(source: string): Segment[] {
+	return [[source, undefined, 0]];
+}
+
 export function replace<T extends Segment<any>>(segments: T[], pattern: string | RegExp, ...replacers: (T | ((match: string) => T))[]) {
 	const str = toString(segments);
 	const match = str.match(pattern);
