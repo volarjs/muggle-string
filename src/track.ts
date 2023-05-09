@@ -74,28 +74,36 @@ export function track<T extends Segment<any>[]>(segments: T, stacks: StackNode[]
 		if (deleteCount === undefined) {
 			deleteCount = segments.length - start;
 		}
-		let remainDeleteCount = deleteCount;
-		let stacksDeleteStart: number | undefined;
-		let stacksDeleteLength = 0;
-		let stackEnd = 0;
+		let _stackStart = 0;
+		let operateIndex: number | undefined;
 		for (let i = 0; i < stacks.length; i++) {
 			const stack = stacks[i];
-			const stackStart = stackEnd;
-			stackEnd = stackStart + stack.length;
-			while (start >= stackStart && start < stackEnd && remainDeleteCount && stack.length) {
+			const stackStart = _stackStart;
+			const stackEnd = stackStart + stack.length;
+			_stackStart = stackEnd;
+			if (start >= stackStart) {
+				operateIndex = i + 1;
+				const originalLength = stack.length;
+				stack.length = start - stackStart;
+				stacks.splice(operateIndex, 0, { stack: stack.stack, length: originalLength - stack.length });
+				break;
+			}
+		}
+		if (operateIndex === undefined) {
+			throw new Error('Invalid splice operation');
+		}
+		let _deleteCount = deleteCount;
+		for (let i = operateIndex; i < stacks.length; i++) {
+			const stack = stacks[i];
+			while (_deleteCount > 0 && stack.length > 0) {
 				stack.length--;
-				remainDeleteCount--;
-				stackEnd--;
+				_deleteCount--;
 			}
-			if (!stack.length) {
-				stacksDeleteStart ??= i;
-				stacksDeleteLength++;
+			if (_deleteCount === 0) {
+				break;
 			}
-			if (remainDeleteCount <= 0) break;
 		}
-		if (stacksDeleteStart !== undefined) {
-			stacks.splice(stacksDeleteStart, stacksDeleteLength);
-		}
+		stacks.splice(operateIndex, 0, { stack: getStack(), length: items.length });
 		return segments.splice(start, deleteCount, ...items);
 	}
 
