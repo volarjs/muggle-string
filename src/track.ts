@@ -15,9 +15,7 @@ export function resetOffsetStack() {
 	stackOffset--;
 }
 
-export function track<T extends Segment<any>[]>(segments: T): [T, StackNode[]] {
-	const stacks: StackNode[] = [];
-
+export function track<T extends Segment<any>[]>(segments: T, stacks: StackNode[] = []): [T, StackNode[]] {
 	return [
 		new Proxy(segments, {
 			get(target, prop, receiver) {
