@@ -1,11 +1,11 @@
-declare const NO_DATA_SYMBOL: unique symbol;
+export declare const NO_DATA_SYMBOL: unique symbol;
+
+export type Range = [number, number];
 
 export type Segment<T = typeof NO_DATA_SYMBOL> = string | (
-	T extends typeof NO_DATA_SYMBOL ?
-	// text, source, source range / offset
-	[string, string | undefined, number | [number, number]] :
-	// text, source, source range / offset, data
-	[string, string | undefined, number | [number, number], T]
+	T extends typeof NO_DATA_SYMBOL
+	? [text: string, source: string | undefined, sourceRange: Range]
+	: [text: string, source: string | undefined, sourceRange: Range, data: T]
 );
 
 export interface StackNode {
