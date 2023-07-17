@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { binarySearch } from '../out/binarySearch';
 
-describe('binarySearch', async () => {
+describe('binarySearch', () => {
 
-	it('search', async () => {
+	it('search', () => {
 		expect(binarySearch([0, 5, 10], -1)).toEqual(0);
 		expect(binarySearch([0, 5, 10], 0)).toEqual(0);
 		expect(binarySearch([0, 5, 10], 1)).toEqual(0);

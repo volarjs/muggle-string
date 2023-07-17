@@ -15,8 +15,18 @@
 		"test": "vitest run"
 	},
 	"devDependencies": {
+		"@jridgewell/sourcemap-codec": "latest",
+		"vscode-languageserver-textdocument": "latest",
 		"typescript": "latest",
 		"vitest": "latest",
 		"vite": "latest"
+	},
+	"peerDependencies": {
+		"@jridgewell/sourcemap-codec": "^1.4.15"
+	},
+	"peerDependenciesMeta": {
+		"@jridgewell/sourcemap-codec": {
+			"optional": true
+		}
 	}
 }
