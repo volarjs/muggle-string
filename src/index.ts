@@ -58,8 +58,8 @@ export function replaceSourceRange<T extends Segment<any>>(segments: T[], source
 			continue;
 		}
 		if (segment[1] === source) {
-			const segmentStart = typeof segment[2] === 'number' ? segment[2] : segment[2][0];
-			const segmentEnd = typeof segment[2] === 'number' ? segment[2] + segment[0].length : segment[2][1];
+			const segmentStart = segment[2];
+			const segmentEnd = segment[2] + segment[0].length;
 			if (segmentStart <= startOffset && segmentEnd >= endOffset) {
 				const inserts: T[] = [];
 				if (startOffset > segmentStart) {
@@ -122,15 +122,9 @@ function trimSegmentEnd<T extends Segment<any>>(segment: T, trimEnd: number) {
 	if (typeof segment === 'string') {
 		return segment.slice(0, trimEnd) as T;
 	}
-	const originalString = segment[0];
-	const originalRange = segment[2];
-	const newString = originalString.slice(0, trimEnd);
-	const newRange = typeof originalRange === 'number' ? originalRange : [originalRange[0], originalRange[1] - (originalString.length - newString.length)];
 	return [
-		newString,
-		segment[1],
-		newRange,
-		...segment.slice(3),
+		segment[0].slice(0, trimEnd),
+		...segment.slice(1),
 	] as T;
 }
 
@@ -138,17 +132,13 @@ function trimSegmentStart<T extends Segment<any>>(segment: T, trimStart: number)
 	if (typeof segment === 'string') {
 		return segment.slice(trimStart) as T;
 	}
-	const originalString = segment[0];
-	const originalRange = segment[2];
-	const newString = originalString.slice(trimStart);
 	if (trimStart < 0) {
-		trimStart += originalString.length;
+		trimStart += segment[0].length;
 	}
-	const newRange = typeof originalRange === 'number' ? originalRange + trimStart : [originalRange[0] + trimStart, originalRange[1]];
 	return [
-		newString,
+		segment[0].slice(trimStart),
 		segment[1],
-		newRange,
+		segment[2] + trimStart,
 		...segment.slice(3),
 	] as T;
 }
