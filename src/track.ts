@@ -116,16 +116,16 @@ export function track<T extends Segment<any>[]>(segments: T, stacks: StackNode[]
 		stacks.splice(0, stacks.length, { stack: getStack(), length: segments.length });
 		return segments.reverse();
 	}
+}
 
-	function getStack() {
-		const stack = new Error().stack!;
-		let source = stack.split('\n')[3 + stackOffset].trim();
-		if (source.endsWith(')')) {
-			source = source.slice(source.lastIndexOf('(') + 1, -1);
-		}
-		else {
-			source = source.slice(source.lastIndexOf(' ') + 1);
-		}
-		return source;
+export function getStack() {
+	const stack = new Error().stack!;
+	let source = stack.split('\n')[3 + stackOffset].trim();
+	if (source.endsWith(')')) {
+		source = source.slice(source.lastIndexOf('(') + 1, -1);
 	}
+	else {
+		source = source.slice(source.lastIndexOf(' ') + 1);
+	}
+	return source;
 }
