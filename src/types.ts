@@ -5,8 +5,3 @@ export type Segment<T = typeof NO_DATA_SYMBOL> = string | (
 	[text: string, source: string | undefined, sourceOffset: number] :
 	[text: string, source: string | undefined, sourceOffset: number, data: T]
 );
-
-export interface StackNode {
-	length: number;
-	stack: string;
-}
