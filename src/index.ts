@@ -132,10 +132,11 @@ function trimSegmentStart<T extends Segment<any>>(segment: T, trimStart: number)
 }
 
 function toOffsets(segments: Segment<any>[]) {
-	const offsets: number[] = [];
+	const offsets: number[] = new Array(segments.length);
 	let offset = 0;
-	for (const segment of segments) {
-		offsets.push(offset);
+	for (let i = 0; i < segments.length; i++) {
+		offsets[i] = offset;
+		const segment = segments[i];
 		offset += typeof segment == 'string' ? segment.length : segment[0].length;
 	}
 	return offsets;
